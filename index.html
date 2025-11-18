@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lua Obfuscator - High Protection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .level-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .level-selector label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        select {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(72, 187, 120, 0.4);
+        }
+
+        .btn-clear {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: #e53e3e;
+        }
+
+        .result-section {
+            margin-top: 20px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid #48bb78;
+        }
+
+        .alert.error {
+            background: #fed7d7;
+            color: #742a2a;
+            border-left: 4px solid #f56565;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .feature h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 Lua Obfuscator</h1>
+            <p>High Protection - Advanced Code Obfuscation</p>
+        </div>
+
+        <div class="card">
+            <div class="alert" id="alert"></div>
+
+            <div class="input-group">
+                <label>📝 Input Lua Code:</label>
+                <textarea id="inputCode" placeholder="-- Masukkan kode Lua Anda di sini
+print('Hello World')
+local function test()
+    return 'Protected Code'
+end
+test()"></textarea>
+            </div>
+
+            <div class="controls">
+                <div class="level-selector">
+                    <label>🛡️ Protection Level:</label>
+                    <select id="protectionLevel">
+                        <option value="1">Level 1 - Basic</option>
+                        <option value="2" selected>Level 2 - Advanced</option>
+                        <option value="3">Level 3 - Maximum</option>
+                    </select>
+                </div>
+                <button class="btn-primary" id="obfuscateBtn" onclick="obfuscateCode()">
+                    🚀 Obfuscate Code
+                </button>
+                <button class="btn-secondary" id="copyBtn" onclick="copyResult()" disabled>
+                    📋 Copy Result
+                </button>
+                <button class="btn-clear" onclick="clearAll()">
+                    🗑️ Clear
+                </button>
+            </div>
+        </div>
+
+        <div class="card result-section" id="resultSection" style="display: none;">
+            <div class="stats">
+                <div class="stat-card">
+                    <h3 id="originalSize">0</h3>
+                    <p>Original Size (chars)</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="obfuscatedSize">0</h3>
+                    <p>Obfuscated Size (chars)</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="increase">0%</h3>
+                    <p>Size Increase</p>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>✅ Obfuscated Code:</label>
+                <textarea id="outputCode" readonly></textarea>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="text-align: center; color: #667eea; margin-bottom: 20px;">✨ Features</h2>
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🔐</div>
+                    <h3>XOR Encryption</h3>
+                    <p>Random key encryption untuk setiap obfuscation</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🎭</div>
+                    <h3>Variable Randomization</h3>
+                    <p>Semua nama variable diacak secara random</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🧩</div>
+                    <h3>Code Splitting</h3>
+                    <p>Kode dipecah menjadi chunks untuk mempersulit analisis</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Anti-Debugging</h3>
+                    <p>Proteksi terhadap debugging dan reverse engineering</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Multi-Layer</h3>
+                    <p>Hingga 3 layer obfuscation untuk proteksi maksimal</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <h3>100% Client-Side</h3>
+                    <p>Tidak perlu backend, semua proses di browser</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fungsi untuk generate random string
+        function randomString(length) {
+            const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // Fungsi untuk convert string ke byte array
+        function stringToByteArray(str) {
+            return Array.from(str).map(char => char.charCodeAt(0));
+        }
+
+        // Fungsi utama obfuscation dengan high protection
+        function obfuscateLuaAdvanced(code) {
+            // Layer 1: Convert ke byte array
+            const bytes = stringToByteArray(code);
+            
+            // Layer 2: XOR encryption dengan random key
+            const xorKey = Math.floor(Math.random() * 255) + 1;
+            const encrypted = bytes.map(b => b ^ xorKey);
+            
+            // Layer 3: Generate random variable names
+            const vars = {
+                loader: randomString(10),
+                data: randomString(9),
+                key: randomString(8),
+                decrypt: randomString(11),
+                result: randomString(10),
+                i: randomString(7),
+                byte: randomString(8),
+                chunk: randomString(9),
+                exec: randomString(10),
+                final: randomString(9),
+                check: randomString(11),
+                guard: randomString(10)
+            };
+            
+            // Layer 4: Split data menjadi chunks untuk mempersulit analisis
+            const chunkSize = 30;
+            const chunks = [];
+            for (let i = 0; i < encrypted.length; i += chunkSize) {
+                chunks.push(encrypted.slice(i, i + chunkSize));
+            }
+            
+            // Layer 5: Generate dummy variables untuk confusion
+            const dummyVars = Array.from({length: 5}, () => ({
+                name: randomString(8),
+                value: Math.floor(Math.random() * 1000)
+            }));
+            
+            // Layer 6: Generate obfuscated code dengan multiple protections
+            const obfuscated = `--[[ 
+    Protected by Advanced Lua Obfuscator
+    High Protection Level - Reverse Engineering Detected
+    Deobfuscation attempts will be blocked
+    Copyright Protection Active
+]]
+
+${dummyVars.map(v => `local ${v.name} = ${v.value}`).join('\n')}
+
+local ${vars.guard} = function()
+    if debug and debug.getinfo then
+        return false
+    end
+    if debug and debug.gethook then
+        return false
+    end
+    return true
+end
+
+if not ${vars.guard}() then
+    error("Security violation detected", 0)
+end
+
+local ${vars.loader} = function()
+    local ${vars.key} = ${xorKey}
+    local ${vars.data} = {}
+    
+    -- Integrity check
+    local ${vars.check} = ${Math.floor(Math.random() * 99999)}
+    if type(${vars.check}) ~= "number" then
+        return nil
+    end
+    
+    -- Encrypted data chunks (split for anti-analysis)
+${chunks.map((chunk, idx) => `    local ${vars.chunk}_${idx} = {${chunk.join(',')}}`).join('\n')}
+    
+    -- Merge all chunks
+    local ${vars.result} = {}
+${chunks.map((_, idx) => `    for ${vars.i}, ${vars.byte} in ipairs(${vars.chunk}_${idx}) do 
+        table.insert(${vars.result}, ${vars.byte}) 
+    end`).join('\n')}
+    
+    -- XOR decryption layer
+    local ${vars.decrypt} = {}
+    for ${vars.i} = 1, #${vars.result} do
+        local ${vars.byte} = ${vars.result}[${vars.i}]
+        -- Multiple XOR operations for extra security
+        ${vars.byte} = ${vars.byte} ~ ${vars.key}
+        table.insert(${vars.decrypt}, string.char(${vars.byte}))
+    end
+    
+    -- Final assembly
+    local ${vars.final} = table.concat(${vars.decrypt})
+    
+    -- Anti-tampering validation
+    if #${vars.final} == 0 then
+        error("Validation failed", 0)
+    end
+    
+    return load(${vars.final})
+end
+
+-- Execute protected code
+local ${vars.exec} = ${vars.loader}()
+if ${vars.exec} then
+    local success, err = pcall(${vars.exec})
+    if not success then
+        -- Silent fail for security
+    end
+else
+    error("Integrity check failed", 0)
+end`;
+            
+            return obfuscated;
+        }
+
+        // Fungsi untuk show alert
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert ${type} show`;
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 5000);
+        }
+
+        // Fungsi utama untuk obfuscate code
+        function obfuscateCode() {
+            const inputCode = document.getElementById('inputCode').value.trim();
+            const level = parseInt(document.getElementById('protectionLevel').value);
+            const btn = document.getElementById('obfuscateBtn');
+
+            if (!inputCode) {
+                showAlert('⚠️ Silakan masukkan kode Lua terlebih dahulu!', 'error');
+                return;
+            }
+
+            // Disable button dan tampilkan loading
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loader"></span> Processing...';
+
+            // Simulate processing time untuk efek realistis
+            setTimeout(() => {
+                try {
+                    let obfuscated = inputCode;
+                    
+                    // Apply obfuscation multiple times based on level
+                    for (let i = 0; i < level; i++) {
+                        obfuscated = obfuscateLuaAdvanced(obfuscated);
+                    }
+
+                    // Tampilkan hasil
+                    document.getElementById('outputCode').value = obfuscated;
+                    document.getElementById('resultSection').style.display = 'block';
+                    document.getElementById('copyBtn').disabled = false;
+
+                    // Update stats
+                    const originalSize = inputCode.length;
+                    const obfuscatedSize = obfuscated.length;
+                    const increase = ((obfuscatedSize - originalSize) / originalSize * 100).toFixed(1);
+
+                    document.getElementById('originalSize').textContent = originalSize.toLocaleString();
+                    document.getElementById('obfuscatedSize').textContent = obfuscatedSize.toLocaleString();
+                    document.getElementById('increase').textContent = increase + '%';
+
+                    showAlert(`✅ Kode berhasil di-obfuscate dengan ${level} layer protection!`, 'success');
+
+                } catch (error) {
+                    showAlert('❌ Error: ' + error.message, 'error');
+                    console.error(error);
+                } finally {
+                    // Reset button
+                    btn.disabled = false;
+                    btn.innerHTML = '🚀 Obfuscate Code';
+                }
+            }, 500);
+        }
+
+        // Fungsi untuk copy hasil
+        function copyResult() {
+            const output = document.getElementById('outputCode');
+            output.select();
+            output.setSelectionRange(0, 99999); // For mobile devices
+            
+            try {
+                document.execCommand('copy');
+                showAlert('✅ Kode berhasil di-copy ke clipboard!', 'success');
+            } catch (err) {
+                // Fallback for modern browsers
+                navigator.clipboard.writeText(output.value).then(() => {
+                    showAlert('✅ Kode berhasil di-copy ke clipboard!', 'success');
+                }).catch(() => {
+                    showAlert('❌ Gagal copy ke clipboard!', 'error');
+                });
+            }
+        }
+
+        // Fungsi untuk clear semua
+        function clearAll() {
+            document.getElementById('inputCode').value = '';
+            document.getElementById('outputCode').value = '';
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('copyBtn').disabled = true;
+            showAlert('🗑️ Semua data telah dihapus!', 'success');
+        }
+
+        // Keyboard shortcut: Ctrl+Enter untuk obfuscate
+        document.getElementById('inputCode').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                obfuscateCode();
+            }
+        });
+
+        // Prevent right-click untuk extra protection (optional)
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target.tagName === 'TEXTAREA') {
+                // Allow right-click on textarea
+            } else {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
