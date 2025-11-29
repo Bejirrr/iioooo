@@ -568,7 +568,7 @@
 
                         let safeToSemi = false;
                         if (paren === 0 && brace === 0 && bracket === 0 && STMT_KEYWORDS.has(nextWord)) {
-                            if (prevCh && (')]}"\\''.includes(prevCh) || /[a-zA-Z0-9_]/.test(prevCh))) {
+                            if (prevCh && (')]}"\''.includes(prevCh) || /[a-zA-Z0-9_]/.test(prevCh))) {
                                 safeToSemi = true;
                             }
                         }
