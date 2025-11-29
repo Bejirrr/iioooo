@@ -1,629 +1,203 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lua Obfuscator</title>
+    <title>Obfuscated Application</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 40px;
-            max-width: 800px;
-            width: 100%;
-        }
-
-        h1 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 32px;
-        }
-
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        .upload-wrapper {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .file-input {
-            width: 100%;
-            padding: 50px 20px;
-            border: 3px dashed #667eea;
-            border-radius: 15px;
-            background: #f8f9ff;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-            font-size: 16px;
-            color: #667eea;
-        }
-
-        .file-input:hover {
-            background: #f0f2ff;
-            border-color: #764ba2;
-        }
-
-        .upload-label {
-            display: block;
-            cursor: pointer;
-        }
-
-        .upload-content {
-            pointer-events: none;
-        }
-
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
-        .upload-text {
-            color: #667eea;
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .upload-subtext {
-            color: #999;
-            font-size: 14px;
-        }
-
-        .file-info {
-            background: #f8f9ff;
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
             align-items: center;
-            justify-content: space-between;
         }
-
-        .file-info.show {
-            display: flex;
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
         }
-
-        .file-name {
+        h1 {
             color: #333;
-            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
         }
-
-        .remove-file {
-            background: #ff4757;
-            color: white;
-            border: none;
-            padding: 8px 15px;
+        .status {
+            padding: 1rem;
             border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 500;
         }
-
-        .remove-file:hover {
-            background: #ff3838;
-            transform: scale(1.05);
-        }
-
-        .convert-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+        button {
             width: 100%;
-            transition: all 0.3s;
-            display: none;
-        }
-
-        .convert-btn.show {
-            display: block;
-        }
-
-        .convert-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .convert-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .loading.show {
-            display: block;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            color: #667eea;
+            padding: 12px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
             font-weight: 600;
         }
-
-        .success {
-            background: #2ecc71;
+        .btn-primary {
+            background: #667eea;
             color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            text-align: center;
-            display: none;
-            margin-top: 20px;
         }
-
-        .success.show {
-            display: block;
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-
-        .error {
-            background: #ff4757;
+        .btn-danger {
+            background: #e74c3c;
             color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            text-align: center;
-            display: none;
-            margin-top: 20px;
         }
-
-        .error.show {
-            display: block;
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
         }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔒 Lua Obfuscator</h1>
-        <p class="subtitle">Convert multi-line Lua code to single line</p>
-
-        <div class="upload-wrapper">
-            <label for="fileInput" class="upload-label">
-                <div class="file-input">
-                    <div class="upload-content">
-                        <div class="upload-icon">📁</div>
-                        <div class="upload-text">Click atau Drag & Drop File Lua</div>
-                        <div class="upload-subtext">Hanya file .lua yang didukung</div>
-                    </div>
-                </div>
-            </label>
-            <input type="file" id="fileInput" accept=".lua" style="display: none;">
-        </div>
-
-        <div class="file-info" id="fileInfo">
-            <span class="file-name" id="fileName"></span>
-            <button class="remove-file" id="removeFile">Hapus</button>
-        </div>
-
-        <button class="convert-btn" id="convertBtn">🚀 Convert & Download</button>
-
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <div class="loading-text">Sedang mengonversi...</div>
-        </div>
-
-        <div class="success" id="success">✅ File berhasil dikonversi dan didownload!</div>
-        <div class="error" id="error">❌ Terjadi kesalahan saat mengonversi file.</div>
+        <h1 id="title">Loading...</h1>
+        <div id="status" class="status info">Initializing...</div>
+        <div id="controls"></div>
     </div>
 
     <script>
-        let selectedFile = null;
+        (function() {
+            const _0x4a2b = [
+                '\x4c\x6f\x61\x64\x69\x6e\x67\x2e\x2e\x2e',
+                '\x49\x6e\x69\x74\x69\x61\x6c\x69\x7a\x69\x6e\x67\x2e\x2e\x2e',
+                '\x4f\x62\x66\x75\x73\x63\x61\x74\x65\x64\x20\x41\x70\x70',
+                '\x53\x79\x73\x74\x65\x6d\x20\x52\x65\x61\x64\x79',
+                '\x53\x74\x61\x72\x74\x20\x50\x72\x6f\x63\x65\x73\x73',
+                '\x53\x74\x6f\x70\x20\x50\x72\x6f\x63\x65\x73\x73',
+                '\x52\x65\x73\x65\x74',
+                '\x50\x72\x6f\x63\x65\x73\x73\x20\x53\x74\x61\x72\x74\x65\x64',
+                '\x50\x72\x6f\x63\x65\x73\x73\x20\x53\x74\x6f\x70\x70\x65\x64',
+                '\x53\x79\x73\x74\x65\x6d\x20\x52\x65\x73\x65\x74',
+                '\x73\x75\x63\x63\x65\x73\x73',
+                '\x65\x72\x72\x6f\x72',
+                '\x69\x6e\x66\x6f',
+                '\x74\x69\x74\x6c\x65',
+                '\x73\x74\x61\x74\x75\x73',
+                '\x63\x6f\x6e\x74\x72\x6f\x6c\x73',
+                '\x69\x6e\x6e\x65\x72\x48\x54\x4d\x4c',
+                '\x67\x65\x74\x45\x6c\x65\x6d\x65\x6e\x74\x42\x79\x49\x64',
+                '\x63\x6c\x61\x73\x73\x4e\x61\x6d\x65',
+                '\x62\x74\x6e\x2d\x70\x72\x69\x6d\x61\x72\x79',
+                '\x62\x74\x6e\x2d\x64\x61\x6e\x67\x65\x72',
+                '\x63\x72\x65\x61\x74\x65\x45\x6c\x65\x6d\x65\x6e\x74',
+                '\x62\x75\x74\x74\x6f\x6e',
+                '\x61\x64\x64\x45\x76\x65\x6e\x74\x4c\x69\x73\x74\x65\x6e\x65\x72',
+                '\x63\x6c\x69\x63\x6b',
+                '\x61\x70\x70\x65\x6e\x64\x43\x68\x69\x6c\x64',
+                '\x73\x74\x61\x74\x75\x73\x20'
+            ];
 
-        const fileInput = document.getElementById('fileInput');
-        const fileInfo = document.getElementById('fileInfo');
-        const fileName = document.getElementById('fileName');
-        const removeFileBtn = document.getElementById('removeFile');
-        const convertBtn = document.getElementById('convertBtn');
-        const loading = document.getElementById('loading');
-        const success = document.getElementById('success');
-        const error = document.getElementById('error');
-        const uploadLabel = document.querySelector('.upload-label');
+            const _0x1a2b = function(_0x3c4d, _0x5e6f) {
+                _0x3c4d = _0x3c4d - 0x0;
+                let _0x7a8b = _0x4a2b[_0x3c4d];
+                return _0x7a8b;
+            };
 
-        function handleFile(file) {
-            console.log('Handling file:', file.name);
-            
-            if (!file.name.toLowerCase().endsWith('.lua')) {
-                alert('Hanya file .lua yang didukung!');
-                fileInput.value = '';
-                return;
-            }
-            
-            selectedFile = file;
-            fileName.textContent = file.name;
-            fileInfo.classList.add('show');
-            convertBtn.classList.add('show');
-            success.classList.remove('show');
-            error.classList.remove('show');
-        }
+            let _0x9c1d = {
+                '\x69\x6e\x69\x74': false,
+                '\x72\x75\x6e\x6e\x69\x6e\x67': false,
+                '\x63\x6f\x75\x6e\x74': 0
+            };
 
-        fileInput.addEventListener('change', function(e) {
-            console.log('File input changed');
-            if (this.files && this.files.length > 0) {
-                handleFile(this.files[0]);
-            }
-        });
-
-        uploadLabel.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.querySelector('.file-input').style.background = '#e8ebff';
-        });
-
-        uploadLabel.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.querySelector('.file-input').style.background = '#f8f9ff';
-        });
-
-        uploadLabel.addEventListener('drop', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.querySelector('.file-input').style.background = '#f8f9ff';
-            
-            console.log('File dropped');
-            
-            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                fileInput.files = e.dataTransfer.files;
-                handleFile(e.dataTransfer.files[0]);
-            }
-        });
-
-        removeFileBtn.addEventListener('click', function() {
-            selectedFile = null;
-            fileInput.value = '';
-            fileInfo.classList.remove('show');
-            convertBtn.classList.remove('show');
-            success.classList.remove('show');
-            error.classList.remove('show');
-        });
-
-        convertBtn.addEventListener('click', async function() {
-            if (!selectedFile) return;
-
-            loading.classList.add('show');
-            success.classList.remove('show');
-            error.classList.remove('show');
-            convertBtn.disabled = true;
-
-            try {
-                const content = await selectedFile.text();
-                const converted = convertLua(content);
+            const _0x2e3f = function(_0x4g5h) {
+                const _0x6i7j = document[_0x1a2b(0x11)](_0x1a2b(0xd));
+                const _0x8k9l = document[_0x1a2b(0x11)](_0x1a2b(0xe));
                 
-                const blob = new Blob([converted], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `obfus_${generateRandomHex(16)}.lua`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+                _0x6i7j[_0x1a2b(0x10)] = _0x4g5h['\x74\x69\x74\x6c\x65'];
+                _0x8k9l[_0x1a2b(0x10)] = _0x4g5h['\x6d\x65\x73\x73\x61\x67\x65'];
+                _0x8k9l[_0x1a2b(0x12)] = _0x1a2b(0x1a) + _0x4g5h['\x74\x79\x70\x65'];
+            };
 
-                loading.classList.remove('show');
-                success.classList.add('show');
-                convertBtn.disabled = false;
-            } catch (err) {
-                loading.classList.remove('show');
-                error.classList.add('show');
-                convertBtn.disabled = false;
-                console.error('Error:', err);
-            }
-        });
+            const _0xa1b2 = function() {
+                const _0xc3d4 = document[_0x1a2b(0x11)](_0x1a2b(0xf));
+                _0xc3d4[_0x1a2b(0x10)] = '';
 
-        function generateRandomHex(length) {
-            const chars = '0123456789abcdef';
-            let result = '';
-            for (let i = 0; i < length; i++) {
-                result += chars[Math.floor(Math.random() * chars.length)];
-            }
-            return result;
-        }
+                const _0xe5f6 = [
+                    {'\x6c\x61\x62\x65\x6c': _0x1a2b(0x4), '\x63\x6c\x61\x73\x73': _0x1a2b(0x13), '\x61\x63\x74\x69\x6f\x6e': _0xg7h8},
+                    {'\x6c\x61\x62\x65\x6c': _0x1a2b(0x5), '\x63\x6c\x61\x73\x73': _0x1a2b(0x14), '\x61\x63\x74\x69\x6f\x6e': _0xi9j0},
+                    {'\x6c\x61\x62\x65\x6c': _0x1a2b(0x6), '\x63\x6c\x61\x73\x73': _0x1a2b(0x14), '\x61\x63\x74\x69\x6f\x6e': _0xk1l2}
+                ];
 
-        function convertLua(src) {
-            const STMT_KEYWORDS = new Set(['if', 'for', 'while', 'repeat', 'local', 'return', 'function', 'do', 'goto', 'break']);
+                _0xe5f6['\x66\x6f\x72\x45\x61\x63\x68'](_0xm3n4 => {
+                    const _0xo5p6 = document[_0x1a2b(0x15)](_0x1a2b(0x16));
+                    _0xo5p6[_0x1a2b(0x10)] = _0xm3n4['\x6c\x61\x62\x65\x6c'];
+                    _0xo5p6[_0x1a2b(0x12)] = _0xm3n4['\x63\x6c\x61\x73\x73'];
+                    _0xo5p6[_0x1a2b(0x17)](_0x1a2b(0x18), _0xm3n4['\x61\x63\x74\x69\x6f\x6e']);
+                    _0xc3d4[_0x1a2b(0x19)](_0xo5p6);
+                });
+            };
 
-            function stripComments(src) {
-                const out = [];
-                let i = 0;
-                const n = src.length;
-                let inS = false, inD = false, inLong = false, longEq = 0;
-                let inLineComment = false, inBlockComment = false;
-
-                while (i < n) {
-                    const c = src[i];
-
-                    if (inLineComment) {
-                        if (c === '\n') {
-                            inLineComment = false;
-                            out.push('\n');
-                        }
-                        i++;
-                        continue;
-                    }
-
-                    if (inBlockComment) {
-                        if (c === ']') {
-                            let j = i + 1, eq = 0;
-                            while (j < n && src[j] === '=') { eq++; j++; }
-                            if (j < n && src[j] === ']' && eq === longEq) {
-                                inBlockComment = false;
-                                i = j + 1;
-                                out.push('\n');
-                                continue;
-                            }
-                        }
-                        i++;
-                        continue;
-                    }
-
-                    if (inS) {
-                        out.push(c);
-                        if (c === '\\' && i + 1 < n) {
-                            out.push(src[i + 1]);
-                            i += 2;
-                            continue;
-                        }
-                        if (c === "'") inS = false;
-                        i++;
-                        continue;
-                    }
-
-                    if (inD) {
-                        out.push(c);
-                        if (c === '\\' && i + 1 < n) {
-                            out.push(src[i + 1]);
-                            i += 2;
-                            continue;
-                        }
-                        if (c === '"') inD = false;
-                        i++;
-                        continue;
-                    }
-
-                    if (inLong) {
-                        out.push(c);
-                        if (c === ']') {
-                            let j = i + 1, eq = 0;
-                            while (j < n && src[j] === '=') { eq++; j++; }
-                            if (j < n && src[j] === ']' && eq === longEq) {
-                                out.push(']');
-                                i = j + 1;
-                                inLong = false;
-                                continue;
-                            }
-                        }
-                        i++;
-                        continue;
-                    }
-
-                    if (c === '-' && i + 1 < n && src[i + 1] === '-') {
-                        let j = i + 2;
-                        if (j < n && src[j] === '[') {
-                            let k = j + 1, eq = 0;
-                            while (k < n && src[k] === '=') { eq++; k++; }
-                            if (k < n && src[k] === '[') {
-                                inBlockComment = true;
-                                longEq = eq;
-                                i = k + 1;
-                                continue;
-                            }
-                        }
-                        inLineComment = true;
-                        i += 2;
-                        continue;
-                    }
-
-                    if (c === "'") { inS = true; out.push(c); i++; continue; }
-                    if (c === '"') { inD = true; out.push(c); i++; continue; }
-                    if (c === '[') {
-                        let j = i + 1, eq = 0;
-                        while (j < n && src[j] === '=') { eq++; j++; }
-                        if (j < n && src[j] === '[') {
-                            inLong = true;
-                            longEq = eq;
-                            out.push('[');
-                            for (let x = 0; x < eq; x++) out.push('=');
-                            out.push('[');
-                            i = j + 1;
-                            continue;
-                        }
-                    }
-
-                    out.push(c);
-                    i++;
+            const _0xg7h8 = function() {
+                if (!_0x9c1d['\x72\x75\x6e\x6e\x69\x6e\x67']) {
+                    _0x9c1d['\x72\x75\x6e\x6e\x69\x6e\x67'] = true;
+                    _0x9c1d['\x63\x6f\x75\x6e\x74']++;
+                    _0x2e3f({
+                        '\x74\x69\x74\x6c\x65': _0x1a2b(0x2),
+                        '\x6d\x65\x73\x73\x61\x67\x65': _0x1a2b(0x7) + '\x20\x23' + _0x9c1d['\x63\x6f\x75\x6e\x74'],
+                        '\x74\x79\x70\x65': _0x1a2b(0xa)
+                    });
                 }
+            };
 
-                return out.join('');
-            }
-
-            function readWordAt(s, pos) {
-                let i = pos;
-                while (i < s.length && /[a-zA-Z0-9_]/.test(s[i])) i++;
-                return s.substring(pos, i);
-            }
-
-            function isIdentStart(ch) {
-                return /[a-zA-Z_]/.test(ch);
-            }
-
-            function convertWithNesting(src) {
-                const s = src.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-                const out = [];
-                let i = 0;
-                const n = s.length;
-                let inS = false, inD = false, inLong = false, longEq = 0;
-                let paren = 0, brace = 0, bracket = 0;
-
-                while (i < n) {
-                    const c = s[i];
-
-                    if (inS) {
-                        out.push(c);
-                        if (c === '\\' && i + 1 < n) {
-                            out.push(s[i + 1]);
-                            i += 2;
-                            continue;
-                        }
-                        if (c === "'") inS = false;
-                        i++;
-                        continue;
-                    }
-
-                    if (inD) {
-                        out.push(c);
-                        if (c === '\\' && i + 1 < n) {
-                            out.push(s[i + 1]);
-                            i += 2;
-                            continue;
-                        }
-                        if (c === '"') inD = false;
-                        i++;
-                        continue;
-                    }
-
-                    if (inLong) {
-                        out.push(c);
-                        if (c === ']') {
-                            let j = i + 1, eq = 0;
-                            while (j < n && s[j] === '=') { eq++; j++; }
-                            if (j < n && s[j] === ']' && eq === longEq) {
-                                out.push(']');
-                                i = j + 1;
-                                inLong = false;
-                                continue;
-                            }
-                        }
-                        i++;
-                        continue;
-                    }
-
-                    if (c === "'") { inS = true; out.push(c); i++; continue; }
-                    if (c === '"') { inD = true; out.push(c); i++; continue; }
-                    if (c === '[') {
-                        let j = i + 1, eq = 0;
-                        while (j < n && s[j] === '=') { eq++; j++; }
-                        if (j < n && s[j] === '[') {
-                            inLong = true;
-                            longEq = eq;
-                            out.push('[');
-                            for (let x = 0; x < eq; x++) out.push('=');
-                            out.push('[');
-                            i = j + 1;
-                            continue;
-                        }
-                    }
-
-                    if (c === '\n') {
-                        let k = out.length - 1;
-                        while (k >= 0 && /\s/.test(out[k])) k--;
-                        const prevCh = k >= 0 ? out[k] : null;
-
-                        let j = i + 1;
-                        while (j < n && /[ \t]/.test(s[j])) j++;
-                        let nextWord = '';
-                        if (j < n && isIdentStart(s[j])) {
-                            nextWord = readWordAt(s, j);
-                        }
-
-                        let safeToSemi = false;
-                        if (paren === 0 && brace === 0 && bracket === 0 && STMT_KEYWORDS.has(nextWord)) {
-                            if (prevCh && (')]}"\''.includes(prevCh) || /[a-zA-Z0-9_]/.test(prevCh))) {
-                                safeToSemi = true;
-                            }
-                        }
-
-                        if (!safeToSemi) {
-                            let p = out.length - 1;
-                            while (p >= 0 && /\s/.test(out[p])) p--;
-                            const endIdx = p;
-                            while (p >= 0 && /[a-zA-Z0-9_]/.test(out[p])) p--;
-                            const prevWord = endIdx >= 0 ? out.slice(p + 1, endIdx + 1).join('') : '';
-                            if (paren === 0 && brace === 0 && bracket === 0 && prevWord === 'end' && STMT_KEYWORDS.has(nextWord)) {
-                                safeToSemi = true;
-                            }
-                        }
-
-                        if (safeToSemi) {
-                            out.push('; ');
-                        } else {
-                            out.push(' ');
-                        }
-                        i++;
-                        continue;
-                    }
-
-                    if (c === '(') paren++;
-                    else if (c === ')') { if (paren > 0) paren--; }
-                    else if (c === '{') brace++;
-                    else if (c === '}') { if (brace > 0) brace--; }
-                    else if (c === '[') bracket++;
-                    else if (c === ']') { if (bracket > 0) bracket--; }
-
-                    if (/\s/.test(c)) {
-                        if (out.length > 0 && out[out.length - 1] !== ' ' && out[out.length - 1] !== '\n') {
-                            out.push(' ');
-                        }
-                        i++;
-                        continue;
-                    }
-
-                    out.push(c);
-                    i++;
+            const _0xi9j0 = function() {
+                if (_0x9c1d['\x72\x75\x6e\x6e\x69\x6e\x67']) {
+                    _0x9c1d['\x72\x75\x6e\x6e\x69\x6e\x67'] = false;
+                    _0x2e3f({
+                        '\x74\x69\x74\x6c\x65': _0x1a2b(0x2),
+                        '\x6d\x65\x73\x73\x61\x67\x65': _0x1a2b(0x8),
+                        '\x74\x79\x70\x65': _0x1a2b(0xb)
+                    });
                 }
+            };
 
-                let res = out.join('');
-                res = res.replace(/\s+/g, ' ').trim();
-                res = res.replace(/\s*;\s*/g, '; ').trim();
-                return res;
-            }
+            const _0xk1l2 = function() {
+                _0x9c1d['\x72\x75\x6e\x6e\x69\x6e\x67'] = false;
+                _0x9c1d['\x63\x6f\x75\x6e\x74'] = 0;
+                _0x2e3f({
+                    '\x74\x69\x74\x6c\x65': _0x1a2b(0x2),
+                    '\x6d\x65\x73\x73\x61\x67\x65': _0x1a2b(0x9),
+                    '\x74\x79\x70\x65': _0x1a2b(0xc)
+                });
+            };
 
-            const stripped = stripComments(src);
-            const converted = convertWithNesting(stripped);
-            return converted + '\n';
-        }
+            const _0xq7r8 = function() {
+                setTimeout(() => {
+                    _0x9c1d['\x69\x6e\x69\x74'] = true;
+                    _0x2e3f({
+                        '\x74\x69\x74\x6c\x65': _0x1a2b(0x2),
+                        '\x6d\x65\x73\x73\x61\x67\x65': _0x1a2b(0x3),
+                        '\x74\x79\x70\x65': _0x1a2b(0xa)
+                    });
+                    _0xa1b2();
+                }, 1000);
+            };
 
-        console.log('Lua Obfuscator loaded successfully');
+            _0xq7r8();
+        })();
     </script>
 </body>
 </html>
