@@ -42,33 +42,41 @@
             font-size: 14px;
         }
 
-        .upload-area {
-            border: 3px dashed #667eea;
-            border-radius: 15px;
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 20px;
-            background: #f8f9ff;
+        .upload-wrapper {
             position: relative;
+            margin-bottom: 20px;
         }
 
-        .upload-area:hover {
+        .file-input {
+            width: 100%;
+            padding: 50px 20px;
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 16px;
+            color: #667eea;
+        }
+
+        .file-input:hover {
             background: #f0f2ff;
             border-color: #764ba2;
         }
 
-        .upload-area.drag-over {
-            background: #e8ebff;
-            border-color: #764ba2;
-            transform: scale(1.02);
+        .upload-label {
+            display: block;
+            cursor: pointer;
+        }
+
+        .upload-content {
+            pointer-events: none;
         }
 
         .upload-icon {
             font-size: 48px;
             margin-bottom: 15px;
-            pointer-events: none;
         }
 
         .upload-text {
@@ -76,17 +84,11 @@
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 8px;
-            pointer-events: none;
         }
 
         .upload-subtext {
             color: #999;
             font-size: 14px;
-            pointer-events: none;
-        }
-
-        #fileInput {
-            display: none;
         }
 
         .file-info {
@@ -145,10 +147,6 @@
         .convert-btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .convert-btn:active {
-            transform: translateY(0);
         }
 
         .convert-btn:disabled {
@@ -220,13 +218,18 @@
         <h1>🔒 Lua Obfuscator</h1>
         <p class="subtitle">Convert multi-line Lua code to single line</p>
 
-        <div class="upload-area" id="uploadArea">
-            <div class="upload-icon">📁</div>
-            <div class="upload-text">Click atau Drag & Drop File Lua</div>
-            <div class="upload-subtext">Hanya file .lua yang didukung</div>
+        <div class="upload-wrapper">
+            <label for="fileInput" class="upload-label">
+                <div class="file-input">
+                    <div class="upload-content">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">Click atau Drag & Drop File Lua</div>
+                        <div class="upload-subtext">Hanya file .lua yang didukung</div>
+                    </div>
+                </div>
+            </label>
+            <input type="file" id="fileInput" accept=".lua" style="display: none;">
         </div>
-
-        <input type="file" id="fileInput" accept=".lua">
 
         <div class="file-info" id="fileInfo">
             <span class="file-name" id="fileName"></span>
@@ -247,8 +250,6 @@
     <script>
         let selectedFile = null;
 
-        // Get elements
-        const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
         const fileInfo = document.getElementById('fileInfo');
         const fileName = document.getElementById('fileName');
@@ -257,13 +258,14 @@
         const loading = document.getElementById('loading');
         const success = document.getElementById('success');
         const error = document.getElementById('error');
+        const uploadLabel = document.querySelector('.upload-label');
 
-        // Handle file selection
         function handleFile(file) {
-            console.log('File selected:', file.name);
+            console.log('Handling file:', file.name);
             
             if (!file.name.toLowerCase().endsWith('.lua')) {
                 alert('Hanya file .lua yang didukung!');
+                fileInput.value = '';
                 return;
             }
             
@@ -275,58 +277,48 @@
             error.classList.remove('show');
         }
 
-        // Click to upload
-        uploadArea.onclick = function() {
-            console.log('Upload area clicked');
-            fileInput.click();
-        };
-
-        // File input change
-        fileInput.onchange = function(e) {
+        fileInput.addEventListener('change', function(e) {
             console.log('File input changed');
-            if (e.target.files && e.target.files.length > 0) {
-                handleFile(e.target.files[0]);
+            if (this.files && this.files.length > 0) {
+                handleFile(this.files[0]);
             }
-        };
+        });
 
-        // Drag and drop events
-        uploadArea.ondragover = function(e) {
+        uploadLabel.addEventListener('dragover', function(e) {
             e.preventDefault();
-            uploadArea.classList.add('drag-over');
-            return false;
-        };
+            e.stopPropagation();
+            this.querySelector('.file-input').style.background = '#e8ebff';
+        });
 
-        uploadArea.ondragleave = function(e) {
+        uploadLabel.addEventListener('dragleave', function(e) {
             e.preventDefault();
-            uploadArea.classList.remove('drag-over');
-            return false;
-        };
+            e.stopPropagation();
+            this.querySelector('.file-input').style.background = '#f8f9ff';
+        });
 
-        uploadArea.ondrop = function(e) {
+        uploadLabel.addEventListener('drop', function(e) {
             e.preventDefault();
-            uploadArea.classList.remove('drag-over');
+            e.stopPropagation();
+            this.querySelector('.file-input').style.background = '#f8f9ff';
             
             console.log('File dropped');
             
-            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
                 handleFile(e.dataTransfer.files[0]);
             }
-            
-            return false;
-        };
+        });
 
-        // Remove file
-        removeFileBtn.onclick = function() {
+        removeFileBtn.addEventListener('click', function() {
             selectedFile = null;
             fileInput.value = '';
             fileInfo.classList.remove('show');
             convertBtn.classList.remove('show');
             success.classList.remove('show');
             error.classList.remove('show');
-        };
+        });
 
-        // Convert button
-        convertBtn.onclick = async function() {
+        convertBtn.addEventListener('click', async function() {
             if (!selectedFile) return;
 
             loading.classList.add('show');
@@ -338,7 +330,6 @@
                 const content = await selectedFile.text();
                 const converted = convertLua(content);
                 
-                // Create download
                 const blob = new Blob([converted], { type: 'text/plain' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -358,9 +349,8 @@
                 convertBtn.disabled = false;
                 console.error('Error:', err);
             }
-        };
+        });
 
-        // Generate random hex
         function generateRandomHex(length) {
             const chars = '0123456789abcdef';
             let result = '';
@@ -370,7 +360,6 @@
             return result;
         }
 
-        // Lua converter
         function convertLua(src) {
             const STMT_KEYWORDS = new Set(['if', 'for', 'while', 'repeat', 'local', 'return', 'function', 'do', 'goto', 'break']);
 
@@ -634,7 +623,7 @@
             return converted + '\n';
         }
 
-        console.log('Script loaded successfully');
+        console.log('Lua Obfuscator loaded successfully');
     </script>
 </body>
 </html>
