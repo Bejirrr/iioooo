@@ -254,24 +254,35 @@
         let selectedFile = null;
 
         // Click to upload
-        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fileInput.click();
+        });
 
         // Drag and drop
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             uploadArea.classList.add('drag-over');
         });
 
-        uploadArea.addEventListener('dragleave', () => {
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             uploadArea.classList.remove('drag-over');
         });
 
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             uploadArea.classList.remove('drag-over');
             const files = e.dataTransfer.files;
-            if (files.length > 0 && files[0].name.endsWith('.lua')) {
-                handleFile(files[0]);
+            if (files.length > 0) {
+                if (files[0].name.endsWith('.lua')) {
+                    handleFile(files[0]);
+                } else {
+                    alert('Hanya file .lua yang didukung!');
+                }
             }
         });
 
