@@ -1,4 +1,431 @@
-<script>
-  const encoded = "d2luZG93LmxvY2F0aW9uLmhyZWYgPSAiaHR0cHM6Ly9zaXRlcy5nb29nbGUuY29tL3ZpZXcvMWRyYWdvbmh1YjEiOw==";
-  eval(atob(encoded));
-</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Script Expiration Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section-title {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .date-time-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(235, 51, 73, 0.4);
+        }
+
+        .output {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .copy-btn {
+            background: #4299e1;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #3182ce;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .status-active {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 2px solid #38a169;
+        }
+
+        .status-expired {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 2px solid #e53e3e;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .quick-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            background: #e2e8f0;
+            color: #2d3748;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quick-btn:hover {
+            background: #cbd5e0;
+            transform: translateY(-1px);
+        }
+
+        .info-box {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #4a5568;
+        }
+
+        .info-box strong {
+            color: #2d3748;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .date-time-group {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Script Expiration Manager</h1>
+            <p>Kelola tanggal expired script Roblox Anda</p>
+        </div>
+
+        <div class="section">
+            <div class="section-title">⚙️ Set Expiration Date</div>
+            
+            <div class="form-group">
+                <label>📅 Tanggal</label>
+                <input type="date" id="dateInput">
+            </div>
+
+            <div class="form-group">
+                <label>⏰ Waktu</label>
+                <div class="date-time-group">
+                    <input type="number" id="hourInput" placeholder="Jam (0-23)" min="0" max="23">
+                    <input type="number" id="minuteInput" placeholder="Menit (0-59)" min="0" max="59">
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <button class="quick-btn" onclick="setDays(7)">+7 Hari</button>
+                <button class="quick-btn" onclick="setDays(30)">+30 Hari</button>
+                <button class="quick-btn" onclick="setDays(90)">+90 Hari</button>
+            </div>
+
+            <button class="btn btn-primary" onclick="generateJSON()">🔧 Generate JSON</button>
+        </div>
+
+        <div class="section">
+            <div class="section-title">📋 JSON Output</div>
+            <div class="output" id="jsonOutput">Belum ada data. Silakan set tanggal expiration terlebih dahulu.</div>
+            <button class="copy-btn" onclick="copyJSON()">📋 Copy JSON</button>
+            
+            <div id="statusDisplay"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">🔗 API Endpoint</div>
+            <div class="output" id="apiEndpoint">Deploy ke Vercel untuk mendapatkan endpoint</div>
+            <button class="copy-btn" onclick="copyEndpoint()">📋 Copy Endpoint</button>
+        </div>
+
+        <div class="section">
+            <div class="section-title">💾 Actions</div>
+            <button class="btn btn-success" onclick="downloadJSON()">⬇️ Download JSON File</button>
+            <button class="btn btn-danger" onclick="setExpired()">❌ Set Expired Now</button>
+        </div>
+
+        <div class="info-box">
+            <strong>📖 Cara Deploy ke Vercel:</strong><br>
+            1. Download file JSON<br>
+            2. Buat file <code>expiration.json</code> di repository<br>
+            3. Deploy ke Vercel.app<br>
+            4. Gunakan URL endpoint di script Roblox
+        </div>
+    </div>
+
+    <script>
+        let currentJSON = null;
+
+        // Set tanggal hari ini sebagai default
+        window.onload = function() {
+            const today = new Date();
+            document.getElementById('dateInput').valueAsDate = today;
+            document.getElementById('hourInput').value = 23;
+            document.getElementById('minuteInput').value = 59;
+            generateJSON();
+        };
+
+        function setDays(days) {
+            const date = new Date();
+            date.setDate(date.getDate() + days);
+            document.getElementById('dateInput').valueAsDate = date;
+            generateJSON();
+        }
+
+        function setExpired() {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            document.getElementById('dateInput').valueAsDate = yesterday;
+            document.getElementById('hourInput').value = 0;
+            document.getElementById('minuteInput').value = 0;
+            generateJSON();
+        }
+
+        function generateJSON() {
+            const dateInput = document.getElementById('dateInput').value;
+            const hour = parseInt(document.getElementById('hourInput').value) || 0;
+            const minute = parseInt(document.getElementById('minuteInput').value) || 0;
+
+            if (!dateInput) {
+                alert('❌ Silakan pilih tanggal terlebih dahulu!');
+                return;
+            }
+
+            const date = new Date(dateInput);
+            const jsonData = {
+                year: date.getFullYear(),
+                month: date.getMonth() + 1,
+                day: date.getDate(),
+                hour: hour,
+                minute: minute
+            };
+
+            currentJSON = jsonData;
+            const jsonString = JSON.stringify(jsonData, null, 2);
+            document.getElementById('jsonOutput').textContent = jsonString;
+
+            updateStatus(jsonData);
+            updateEndpoint();
+        }
+
+        function updateStatus(data) {
+            const expDate = new Date(data.year, data.month - 1, data.day, data.hour, data.minute);
+            const now = new Date();
+            const isExpired = now > expDate;
+
+            const statusDiv = document.getElementById('statusDisplay');
+            const statusClass = isExpired ? 'status-expired' : 'status-active';
+            const statusIcon = isExpired ? '❌' : '✅';
+            const statusText = isExpired ? 'EXPIRED' : 'ACTIVE';
+            
+            const diffTime = Math.abs(expDate - now);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const timeText = isExpired ? `${diffDays} hari yang lalu` : `${diffDays} hari lagi`;
+
+            statusDiv.innerHTML = `
+                <div class="status ${statusClass}">
+                    ${statusIcon} Status: ${statusText}<br>
+                    <small>${timeText} (${expDate.toLocaleString('id-ID')})</small>
+                </div>
+            `;
+        }
+
+        function updateEndpoint() {
+            const endpoint = 'https://your-project.vercel.app/api/expiration';
+            document.getElementById('apiEndpoint').textContent = endpoint;
+        }
+
+        function copyJSON() {
+            if (!currentJSON) {
+                alert('❌ Belum ada JSON untuk di-copy!');
+                return;
+            }
+
+            const jsonString = JSON.stringify(currentJSON, null, 2);
+            navigator.clipboard.writeText(jsonString).then(() => {
+                alert('✅ JSON berhasil di-copy ke clipboard!');
+            }).catch(err => {
+                alert('❌ Gagal copy JSON: ' + err);
+            });
+        }
+
+        function copyEndpoint() {
+            const endpoint = document.getElementById('apiEndpoint').textContent;
+            navigator.clipboard.writeText(endpoint).then(() => {
+                alert('✅ Endpoint berhasil di-copy ke clipboard!');
+            }).catch(err => {
+                alert('❌ Gagal copy endpoint: ' + err);
+            });
+        }
+
+        function downloadJSON() {
+            if (!currentJSON) {
+                alert('❌ Belum ada JSON untuk di-download!');
+                return;
+            }
+
+            const jsonString = JSON.stringify(currentJSON, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'expiration.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            alert('✅ File expiration.json berhasil di-download!');
+        }
+    </script>
+</body>
+</html>
